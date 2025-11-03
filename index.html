@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Player - Para Minha Namorada</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(to bottom, #1a1a1a, #000000);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .player-container {
+            width: 100%;
+            max-width: 450px;
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            color: white;
+        }
+
+        .header svg {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .header h2 {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Album Cover */
+        .album-cover-container {
+            padding: 24px 32px;
+        }
+
+        .album-cover {
+            position: relative;
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        .album-cover img {
+            width: 100%;
+            display: block;
+        }
+
+        .album-names {
+            position: absolute;
+            bottom: 16px;
+            left: 0;
+            right: 0;
+            text-align: center;
+        }
+
+        .album-names p {
+            font-size: 28px;
+            font-family: cursive;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Song Info */
+        .song-info {
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .song-details h1 {
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .song-details p {
+            font-size: 14px;
+            color: #b3b3b3;
+        }
+
+        .like-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            transition: transform 0.2s;
+        }
+
+        .like-button:hover {
+            transform: scale(1.1);
+        }
+
+        .like-button svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .like-button.liked svg {
+            fill: #1db954;
+            stroke: #1db954;
+        }
+
+        .like-button:not(.liked) svg {
+            fill: none;
+            stroke: #1db954;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            padding: 8px 32px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #4b5563;
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .progress-thumb {
+            width: 14px;
+            height: 14px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            right: -7px;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .progress-bar:hover .progress-thumb {
+            opacity: 1;
+        }
+
+        .time-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #b3b3b3;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+            padding: 24px 32px;
+        }
+
+        .control-button {
+            background: none;
+            border: none;
+            color: #b3b3b3;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0;
+        }
+
+        .control-button:hover {
+            color: white;
+        }
+
+        .control-button svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .control-button.prev svg,
+        .control-button.next svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .play-button {
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .play-button:hover {
+            transform: scale(1.05);
+        }
+
+        .play-button svg {
+            width: 28px;
+            height: 28px;
+            fill: black;
+        }
+
+        /* Footer */
+        .footer {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 32px;
+            border-top: 1px solid #333;
+        }
+
+        .spotify-logo {
+            background: #1db954;
+            border-radius: 50%;
+            padding: 8px;
+            flex-shrink: 0;
+        }
+
+        .spotify-logo svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        .waveform {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 40px;
+        }
+
+        .waveform-bar {
+            width: 3px;
+            background: white;
+            border-radius: 2px;
+            transition: height 0.3s, opacity 0.3s;
+        }
+
+        .menu-button {
+            background: none;
+            border: none;
+            color: #b3b3b3;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .menu-button:hover {
+            color: white;
+        }
+
+        .menu-button svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        #nomes {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="player-container">
+        <!-- Header -->
+        <div class="header">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+            <h2>We Sing. We Dance. We Steal Things.</h2>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+            </svg>
+        </div>
+
+        <!-- Album Cover -->
+        <div class="album-cover-container">
+            <div class="album-cover">
+                <img src="foto.jpg" alt="Album Cover">
+                <div id="nomes" class="album-names">
+                    <p >Manu & Caike</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Song Info -->
+        <div class="song-info">
+            <div class="song-details">
+                <h1>Dona do meu pensamento</h1>
+                <p>Charlie Brown Jr.</p>
+            </div>
+            <button class="like-button liked" id="likeButton">
+                <svg viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill">
+                    <div class="progress-thumb"></div>
+                </div>
+            </div>
+            <div class="time-labels">
+                <span id="currentTime">0:17</span>
+                <span id="totalTime">2:34</span>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="control-button shuffle">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12M8 12h12M8 17h12M3 7h.01M3 12h.01M3 17h.01" />
+                </svg>
+            </button>
+
+            <button class="control-button prev">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                </svg>
+            </button>
+
+            <button class="play-button" id="playButton">
+                <svg id="playIcon" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+            </button>
+
+            <button class="control-button next">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M16 18h-2V6h2zm3.5 0L11 12l8.5-6z"/>
+                </svg>
+            </button>
+
+            <button class="control-button repeat">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="spotify-logo">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                </svg>
+            </div>
+            <div class="waveform" id="waveform"></div>
+            <button class="menu-button">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Adicione antes do </body> -->
+    <audio id="audioPlayer" src="musica.mp3"></audio>
+
+    <script>
+        // Estado do player
+        let isPlaying = false;
+        let currentTime = 17;
+        const totalTime = 154;
+        let isLiked = true;
+
+        // Elementos
+        const playButton = document.getElementById('playButton');
+        const playIcon = document.getElementById('playIcon');
+        const likeButton = document.getElementById('likeButton');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const currentTimeLabel = document.getElementById('currentTime');
+        const totalTimeLabel = document.getElementById('totalTime');
+        const waveform = document.getElementById('waveform');
+        const audioPlayer = document.getElementById('audioPlayer');
+
+        // Formatar tempo
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Atualizar barra de progresso
+        function updateProgress() {
+            const percentage = (currentTime / totalTime) * 100;
+            progressFill.style.width = percentage + '%';
+            currentTimeLabel.textContent = formatTime(currentTime);
+        }
+
+        // Play/Pause
+        // Elemento de áudio
+
+// Play/Pause
+playButton.addEventListener('click', function() {
+    isPlaying = !isPlaying;
+    
+    if (isPlaying) {
+        audioPlayer.play();
+        playIcon.innerHTML = '<path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>';
+    } else {
+        audioPlayer.pause();
+        playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+    }
+    
+    updateWaveform();
+});
+
+// Atualizar progresso automaticamente
+audioPlayer.addEventListener('timeupdate', function() {
+    currentTime = Math.floor(audioPlayer.currentTime);
+    updateProgress();
+});
+
+// Atualizar duração total
+audioPlayer.addEventListener('loadedmetadata', function() {
+    totalTime = Math.floor(audioPlayer.duration);
+    totalTimeLabel.textContent = formatTime(totalTime);
+});
+
+        // Like button
+        likeButton.addEventListener('click', function() {
+            isLiked = !isLiked;
+            if (isLiked) {
+                likeButton.classList.add('liked');
+            } else {
+                likeButton.classList.remove('liked');
+            }
+        });
+
+        // Progress bar click
+        progressBar.addEventListener('click', function(e) {
+    const rect = progressBar.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = x / rect.width;
+    audioPlayer.currentTime = percentage * audioPlayer.duration;
+});
+
+        // Criar waveform
+        function createWaveform() {
+            waveform.innerHTML = '';
+            for (let i = 0; i < 20; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'waveform-bar';
+                const height = Math.random() * 20 + 10;
+                bar.style.height = height + 'px';
+                bar.style.opacity = '0.3';
+                waveform.appendChild(bar);
+            }
+        }
+
+        // Atualizar waveform
+        function updateWaveform() {
+            const bars = waveform.querySelectorAll('.waveform-bar');
+            bars.forEach(bar => {
+                if (isPlaying) {
+                    bar.style.opacity = '0.8';
+                    const randomHeight = Math.random() * 20 + 10;
+                    bar.style.height = randomHeight + 'px';
+                } else {
+                    bar.style.opacity = '0.3';
+                }
+            });
+        }
+
+        // Animar waveform quando está tocando
+        setInterval(() => {
+            if (isPlaying) {
+                updateWaveform();
+            }
+        }, 300);
+
+        // Inicializar
+        totalTimeLabel.textContent = formatTime(totalTime);
+        updateProgress();
+        createWaveform();
+    </script>
+</body>
+</html>
