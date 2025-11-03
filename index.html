@@ -511,6 +511,26 @@ audioPlayer.addEventListener('loadedmetadata', function() {
         totalTimeLabel.textContent = formatTime(totalTime);
         updateProgress();
         createWaveform();
+
+        // Debug - verificar se arquivos carregam
+audioPlayer.addEventListener('error', function(e) {
+    console.error('Erro ao carregar áudio:', e);
+    alert('Erro ao carregar o áudio. Verifique o console.');
+});
+
+// Verificar se imagem carrega
+const img = document.querySelector('.album-cover img');
+img.addEventListener('error', function() {
+    console.error('Erro ao carregar imagem');
+    alert('Erro ao carregar a imagem');
+});
+
+img.addEventListener('load', function() {
+    console.log('Imagem carregada com sucesso!');
+});
+
+console.log('Caminho do áudio:', audioPlayer.src);
+console.log('Caminho da imagem:', img.src);
     </script>
 </body>
 </html>
